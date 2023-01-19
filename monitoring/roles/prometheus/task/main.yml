@@ -1,0 +1,50 @@
+---
+
+  tasks:
+  - name: COnfigure prometheus user account
+    shell: |
+      useradd --no-create-home prometheus
+      mkdir /etc/prometheus
+      mkdir /var/lib/prometheus
+    
+
+  - name: Install Prometheus  
+    shell: |
+      wget https://github.com/prometheus/prometheus/releases/download/v2.19.0/prometheus-2.19.0.linux-amd64.tar.gz
+      tar xvfz prometheus-2.19.0.linux-amd64.tar.gz
+      sudo cp prometheus-2.19.0.linux-amd64/prometheus /usr/local/bin
+      sudo cp prometheus-2.19.0.linux-amd64/promtool /usr/local/bin/
+      sudo cp -r prometheus-2.19.0.linux-amd64/consoles /etc/prometheuscp -r prometheus-2.19.0.linux-amd64/console_libraries /etc/prometheus
+      sudo cp prometheus-2.19.0.linux-amd64/promtool /usr/local/bin/
+      sudo rm -rf prometheus-2.19.0.linux-amd64.tar.gz prometheus-2.19.0.linux-amd64
+  
+  - name: Cahnge files' owner and permission
+    shell: |
+      sudo chown prometheus:prometheus /etc/prometheus
+      sudo chown prometheus:prometheus /usr/local/bin/prometheus
+      sudo chown prometheus:prometheus /usr/local/bin/promtool
+      sudo chown -R prometheus:prometheus /etc/prometheus/consoles
+      sudo chown -R prometheus:prometheus /etc/prometheus/console_libraries 
+      sudo chown -R prometheus:prometheus /var/lib/prometheus
+
+  - name: Copy prometheus Configuration file
+    template:
+      src: "files/prometheus.yml"
+      dest: "/etc/prometheus/prometheus.yml"
+      owner: "prometheus"
+      group: "prometheus"
+      mode: "766"
+
+  - name: Copy prometheus service file
+    template:
+      src: "files/prometheus.service"
+      dest: "/etc/systemd/system/prometheus.service"
+      owner: "prometheus"
+      group: "prometheus"
+      mode: "766"
+
+  - name: Start Prometheus service
+    shell: |
+      sudo systemctl daemon-reload
+      sudo systemctl enable prometheus
+      sudo systemctl start prometheus
