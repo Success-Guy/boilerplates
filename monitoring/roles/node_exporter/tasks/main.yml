@@ -1,6 +1,5 @@
 ---
 
-
 - name: COnfigure node_exporter user account
   shell: |
     useradd --no-create-home node_exporter
