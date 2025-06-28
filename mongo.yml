@@ -1,0 +1,29 @@
+version: '3.8'
+
+services:
+  mongo1:
+    image: mongo:6.0
+    container_name: mongo1
+    ports:
+      - 27027:27017
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=root
+      - MONGO_INITDB_ROOT_PASSWORD=example
+      - MONGO_REPLICA_SET_NAME=rs0
+    command:
+      [
+        'mongod',
+        '--replSet',
+        'rs0',
+        '--bind_ip_all',
+        '--keyFile',
+        '/data/keyfile',
+      ]
+    volumes:
+      - /home/github/mongodb:/data/db
+    networks:
+      - backend
+
+networks:
+  backend:
+    external: true
